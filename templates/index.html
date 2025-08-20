@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chess Outcome Predictor</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+            border: 1px solid #e0e0e0;
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        p {
+            color: #7f8c8d;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        input[type="text"] {
+            width: 90%;
+            padding: 15px;
+            margin-bottom: 25px;
+            border: 2px solid #bdc3c7;
+            border-radius: 8px;
+            font-size: 1.1em;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        input[type="text"]:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 8px rgba(52, 152, 219, 0.5);
+            outline: none;
+        }
+
+        button {
+            background-color: #3498db;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        #output {
+            font-size: 1.6em;
+            margin-top: 30px;
+            font-weight: 600;
+        }
+        
+        #output i.fa-chess-king.white-piece {
+            color: white;
+            -webkit-text-stroke: 1px black;
+            text-stroke: 1px black;
+            margin-right: 10px;
+        }
+
+        #output i.fa-chess-king.black-piece {
+            color: black;
+            margin-right: 10px;
+        }
+
+        .loading {
+            color: #95a5a6;
+        }
+
+        .error {
+            color: #e74c3c;
+        }
+
+        .prediction {
+            color: #27ae60;
+        }
+
+        .how-to-use {
+            text-align: left;
+            margin-top: 40px;
+        }
+
+        .how-to-use h2 {
+            color: #555;
+            font-size: 1.5em;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 5px;
+        }
+
+        .how-to-use ol {
+            padding-left: 20px;
+        }
+
+        .how-to-use li {
+            margin-bottom: 10px;
+            color: #555;
+            font-size: 1em;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Chess Game Result Prediction using ML</h1>
+    <p>Enter a FEN string to predict the outcome of the game.</p>
+    <input type="text" id="fenInput" placeholder="e.g., rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1">
+    <button onclick="predictOutcome()">Predict</button>
+    <div id="output"></div>
+
+    <div class="how-to-use">
+        <h2>How to Use</h2>
+        <ol>
+            <li>Enter a FEN String: Paste a valid FEN string of a chess position into the text box above.</li>
+            <li>Click Predict: Click the 'Predict' button to send the position to the model.</li>
+            <li>View the Result: The predicted outcome will appear below the button.</li>
+        </ol>
+    </div>
+</div>
+
+<script>
+    async function predictOutcome() {
+        const fen = document.getElementById('fenInput').value;
+        const outputDiv = document.getElementById('output');
+
+        if (!fen) {
+            outputDiv.innerHTML = "Please enter a FEN string.";
+            outputDiv.className = 'error';
+            return;
+        }
+
+        outputDiv.innerHTML = "Thinking...";
+        outputDiv.className = 'loading';
+
+        try {
+            const response = await fetch('/predict', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ fen: fen })
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                let iconHtml = '';
+                const predictionText = data.prediction;
+                
+                if (predictionText.includes("White is predicted to win.")) {
+                    iconHtml = '<i class="fas fa-chess-king white-piece"></i>';
+                } else if (predictionText.includes("Black is predicted to win.")) {
+                    iconHtml = '<i class="fas fa-chess-king black-piece"></i>';
+                }
+
+                outputDiv.innerHTML = iconHtml + predictionText;
+                outputDiv.className = 'prediction';
+            } else {
+                outputDiv.innerHTML = 'Error: ' + (data.error || 'Something went wrong.');
+                outputDiv.className = 'error';
+            }
+        } catch (error) {
+            outputDiv.innerHTML = 'An error occurred. Check the server connection.';
+            outputDiv.className = 'error';
+            console.error(error);
+        }
+    }
+</script>
+</body>
+</html>
