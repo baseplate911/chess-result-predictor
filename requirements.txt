@@ -75,8 +75,8 @@ soupsieve==2.6
 stockfish==3.28.0
 tensorboard==2.18.0
 tensorboard-data-server==0.7.2
-tensorflow==2.18.0
-tensorflow_intel==2.18.0
+tensorflow
+tensorflow_intel
 termcolor==2.5.0
 threadpoolctl==3.5.0
 trio==0.28.0
