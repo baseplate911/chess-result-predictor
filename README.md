@@ -44,11 +44,3 @@ cd frontend
 npm install
 npm start
 
-Access the Application: Open your browser and navigate to http://localhost:3000 to interact with the application.
-
-🎯 Future Improvements
-Model Refinement: Explore more advanced models, such as Convolutional Neural Networks (CNNs), which are excellent at recognizing spatial patterns on a chessboard.
-
-Real-time Analysis: Integrate the Lichess API to allow for real-time analysis of ongoing games.
-
-Expanded Features: Add more intricate chess features, such as pawn structure, controlled squares, and piece mobility, to further improve model accuracy.
